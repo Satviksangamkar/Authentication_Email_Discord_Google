@@ -11,7 +11,6 @@ A comprehensive FastAPI-based authentication service supporting **Email/Password
 - [Authentication Flows](#-authentication-flows)
 - [Security Features](#-security-features)
 - [Testing](#-testing)
-- [Configuration](#-configuration)
 - [Troubleshooting](#-troubleshooting)
 
 ## 🌟 Features
@@ -606,3 +605,4 @@ Monitor these endpoints:
 - **API Documentation**: `GET /docs`
 - **Redis Connection**: Check logs for connection status
 - **Note**: No dedicated health check endpoint is currently implemented
+
