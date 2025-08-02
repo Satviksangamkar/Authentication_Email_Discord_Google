@@ -1,4 +1,4 @@
-﻿# 🔐 Multi-Provider Authentication Service
+# 🔐 Multi-Provider Authentication Service
 
 A comprehensive FastAPI-based authentication service supporting **Email/Password**, **Discord OAuth**, and **Google OAuth** authentication methods with JWT token management and Redis session storage.
 
@@ -11,6 +11,7 @@ A comprehensive FastAPI-based authentication service supporting **Email/Password
 - [Authentication Flows](#-authentication-flows)
 - [Security Features](#-security-features)
 - [Testing](#-testing)
+- [Configuration](#-configuration)
 - [Troubleshooting](#-troubleshooting)
 
 ## 🌟 Features
@@ -82,11 +83,11 @@ Authentication_Email_Discord_Google/
 - **SMTP Access** (Gmail, SendGrid, etc.)
 - **Discord Developer App** (for Discord OAuth)
 - **Google Cloud Project** (for Google OAuth)
+- **Optional**: Install `argon2-cffi` for Argon2 password hashing (recommended for production)
 
 ### Service URLs
 - **API Documentation**: http://127.0.0.1:8000/docs
 - **Interactive API**: http://127.0.0.1:8000/redoc
-- **Health Check**: http://127.0.0.1:8000
 
 ## 📚 API Endpoints
 
@@ -413,7 +414,7 @@ GET /logout
 ## 🔒 Security Features
 
 ### Password Security
-- **Multiple Hashing Algorithms**: Argon2 (preferred) and BCrypt support
+- **Multiple Hashing Algorithms**: Argon2 (preferred, requires `argon2-cffi` package) and BCrypt support
 - **Minimum Length Requirement**: 8 characters enforced
 - **Secure Password Reset**: Time-limited tokens with single use
 
@@ -517,7 +518,7 @@ ACCESS_TTL=3600
 
 # Redis Configuration
 REDIS_HOST=your-redis-host
-REDIS_PORT=6379
+REDIS_PORT=13632
 REDIS_USERNAME=your-username
 REDIS_PASSWORD=your-secure-password
 
@@ -584,6 +585,13 @@ python main.py
 - Ensure proper Authorization header format: `Bearer <token>`
 - Check if password was recently changed (invalidates tokens)
 
+#### 6. Password Reset Email Configuration
+**Symptom**: Password reset emails contain placeholder URLs
+**Solutions**:
+- The code contains a placeholder reset link (`https://yourapp.com`) in `auth.py` line 237
+- Configure a proper `BASE_URL` environment variable for your domain
+- Update the reset link generation to use your actual frontend URL
+
 ### Debug Mode
 
 Enable detailed logging:
@@ -595,7 +603,6 @@ uvicorn main:app --host 127.0.0.1 --port 8000 --reload --log-level debug
 ### Health Checks
 
 Monitor these endpoints:
-- **API Health**: `GET /` (redirects to docs)
 - **API Documentation**: `GET /docs`
 - **Redis Connection**: Check logs for connection status
-
+- **Note**: No dedicated health check endpoint is currently implemented
