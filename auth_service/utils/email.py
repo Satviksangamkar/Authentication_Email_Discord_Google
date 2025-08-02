@@ -1,7 +1,7 @@
 import smtplib
 import ssl
 from email.mime.text import MIMEText
-from ..config import settings
+from config import settings
 
 def send_otp_email(to_email: str, otp: str):
     msg = MIMEText(f"Your verification code is: {otp}\n\nValid for 5 minutes.")

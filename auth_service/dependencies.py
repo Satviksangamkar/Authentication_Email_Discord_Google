@@ -3,8 +3,8 @@ import logging
 from fastapi import Request, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
-from .utils.security import decode_jwt
-from .utils.redis import redis_client
+from utils.security import decode_jwt
+from utils.redis import redis_client
 
 logger = logging.getLogger(__name__)
 

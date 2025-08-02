@@ -3,9 +3,9 @@ import urllib.parse
 import uuid  
 import logging
 from jose import jwt
-from .security import create_jwt
-from ..config import settings
-from ..utils import discord
+from utils.security import create_jwt
+from config import settings
+from utils import discord
 logger = logging.getLogger(__name__)
 
 def generate_discord_login_url(state: str, custom_redirect_uri: str = None) -> str:

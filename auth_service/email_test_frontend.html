@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Functionality Test Frontend</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .test-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .test-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .test-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+
+        .response.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .response.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .response.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .api-status {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background: #28a745;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        }
+
+        .status-offline {
+            background: #dc3545;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+        }
+
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .instructions a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .instructions a:hover {
+            text-decoration: underline;
+        }
+
+        .response pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        kbd {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 Email Functionality Test Suite</h1>
+            <p>Test all email-related features of the authentication service</p>
+        </div>
+
+        <div class="api-status">
+            <h3>API Status: <span class="status-indicator" id="apiStatus"></span><span id="apiStatusText">Checking...</span></h3>
+        </div>
+
+        <div class="test-grid">
+            <!-- User Registration & OTP -->
+            <div class="test-card">
+                <h3><span class="icon">👤</span>User Registration & OTP</h3>
+                <div class="form-group">
+                    <label for="regEmail">Email Address:</label>
+                    <input type="email" id="regEmail" placeholder="test@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password:</label>
+                    <input type="password" id="regPassword" placeholder="Minimum 8 characters" required>
+                </div>
+                <button class="btn" onclick="registerUser()">📧 Register & Send OTP</button>
+                <div class="response" id="regResponse"></div>
+            </div>
+
+            <!-- OTP Verification -->
+            <div class="test-card">
+                <h3><span class="icon">🔐</span>OTP Verification</h3>
+                <div class="form-group">
+                    <label for="otpEmail">Email Address:</label>
+                    <input type="email" id="otpEmail" placeholder="Same as registration email" required>
+                </div>
+                <div class="form-group">
+                    <label for="otpCode">OTP Code:</label>
+                    <input type="text" id="otpCode" placeholder="123456" maxlength="6" required>
+                </div>
+                <button class="btn" onclick="verifyOTP()">✅ Verify OTP</button>
+                <div class="response" id="otpResponse"></div>
+            </div>
+
+            <!-- Forgot Password -->
+            <div class="test-card">
+                <h3><span class="icon">🔑</span>Forgot Password</h3>
+                <div class="form-group">
+                    <label for="forgotEmail">Email Address:</label>
+                    <input type="email" id="forgotEmail" placeholder="registered@example.com" required>
+                </div>
+                <button class="btn" onclick="forgotPassword()">📬 Send Reset Link</button>
+                <div class="response" id="forgotResponse"></div>
+            </div>
+
+            <!-- Password Reset -->
+            <div class="test-card">
+                <h3><span class="icon">🔄</span>Password Reset</h3>
+                <div class="form-group">
+                    <label for="resetToken">Reset Token:</label>
+                    <input type="text" id="resetToken" placeholder="Token from email link" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New Password:</label>
+                    <input type="password" id="newPassword" placeholder="New password (8+ chars)" required>
+                </div>
+                <button class="btn" onclick="resetPassword()">🔐 Reset Password</button>
+                <div class="response" id="resetResponse"></div>
+            </div>
+
+            <!-- Login Test -->
+            <div class="test-card">
+                <h3><span class="icon">🚪</span>Login Test</h3>
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" placeholder="verified@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" placeholder="Your password" required>
+                </div>
+                <button class="btn" onclick="loginUser()">🔓 Login</button>
+                <div class="response" id="loginResponse"></div>
+            </div>
+
+            <!-- Protected Route Test -->
+            <div class="test-card">
+                <h3><span class="icon">🔒</span>Protected Route Test</h3>
+                <p style="margin-bottom: 15px; color: #666;">Test authenticated endpoint with stored token</p>
+                <button class="btn" onclick="testProtected()">🛡️ Test Protected Route</button>
+                <div class="response" id="protectedResponse"></div>
+            </div>
+
+            <!-- Discord OAuth Test -->
+            <div class="test-card">
+                <h3><span class="icon">🎮</span>Discord OAuth</h3>
+                <p style="margin-bottom: 15px; color: #666;">Test Discord login integration</p>
+                <button class="btn" onclick="testDiscordLogin()">🔗 Login with Discord</button>
+                <div class="response" id="discordResponse"></div>
+            </div>
+
+            <!-- Google OAuth Test -->
+            <div class="test-card">
+                <h3><span class="icon">🔍</span>Google OAuth</h3>
+                <p style="margin-bottom: 15px; color: #666;">Test Google login integration</p>
+                <button class="btn" onclick="testGoogleLogin()">📱 Login with Google</button>
+                <div class="response" id="googleResponse"></div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 Testing Instructions</h3>
+            <ol>
+                <li><strong>Start the API:</strong> Make sure your FastAPI server is running on http://127.0.0.1:8000</li>
+                <li><strong>Register User:</strong> Enter email and password, click "Register & Send OTP"</li>
+                <li><strong>Check Email:</strong> Look for OTP in your email inbox (or check server logs for the OTP)</li>
+                <li><strong>Verify OTP:</strong> Enter the received OTP code and verify</li>
+                <li><strong>Test Login:</strong> Login with your verified credentials</li>
+                <li><strong>Forgot Password:</strong> Test password reset flow with reset emails</li>
+                <li><strong>Protected Route:</strong> Test authenticated endpoints</li>
+                <li><strong>OAuth Testing:</strong> Test Discord and Google login integrations</li>
+
+            </ol>
+            <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                <strong>🔗 Quick Links:</strong><br>
+                <a href="http://127.0.0.1:8000/docs" target="_blank" style="color: #fff;">📚 API Documentation</a> | 
+                <a href="http://127.0.0.1:8000/discord/login" target="_blank" style="color: #fff;">🎮 Discord Login</a> | 
+                <a href="http://127.0.0.1:8000/login/google" target="_blank" style="color: #fff;">🔍 Google Login</a>
+            </div>
+            <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">
+                💡 <strong>Tip:</strong> Press <kbd>Ctrl+Shift+T</kbd> to auto-fill test data
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        let authToken = null;
+
+        // Check API status on load
+        window.addEventListener('load', checkApiStatus);
+
+        async function checkApiStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/docs`);
+                if (response.ok) {
+                    document.getElementById('apiStatus').className = 'status-indicator status-online';
+                    document.getElementById('apiStatusText').textContent = 'Online';
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (error) {
+                document.getElementById('apiStatus').className = 'status-indicator status-offline';
+                document.getElementById('apiStatusText').textContent = 'Offline';
+            }
+        }
+
+        function showResponse(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            
+            // Handle formatted JSON or multi-line messages
+            if (message.includes('\n') || message.includes('{')) {
+                const pre = document.createElement('pre');
+                pre.textContent = message;
+                element.innerHTML = '';
+                element.appendChild(pre);
+            } else {
+                element.textContent = message;
+            }
+            
+            element.className = `response ${type}`;
+        }
+
+        // Enhanced makeRequest with better error handling
+        async function makeRequest(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+                    },
+                    ...options
+                });
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    // Handle non-JSON responses
+                    data = { message: await response.text() };
+                }
+                
+                return { response, data };
+            } catch (error) {
+                throw new Error(`Network error: ${error.message}`);
+            }
+        }
+
+        async function registerUser() {
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            if (!email || !password) {
+                showResponse('regResponse', 'Please fill in all fields', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showResponse('regResponse', 'Password must be at least 8 characters', 'error');
+                return;
+            }
+
+            try {
+                showResponse('regResponse', 'Registering user...', 'info');
+                
+                const { response, data } = await makeRequest('/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    showResponse('regResponse', 
+                        `✅ Registration successful! OTP sent to ${email}. Check your email or server logs for the OTP code.`, 
+                        'success'
+                    );
+                    // Auto-fill OTP email field
+                    document.getElementById('otpEmail').value = email;
+                } else {
+                    showResponse('regResponse', `❌ Error: ${data.detail || 'Registration failed'}`, 'error');
+                }
+            } catch (error) {
+                showResponse('regResponse', `❌ ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyOTP() {
+            const email = document.getElementById('otpEmail').value;
+            const otp = document.getElementById('otpCode').value;
+
+            if (!email || !otp) {
+                showResponse('otpResponse', 'Please fill in all fields', 'error');
+                return;
+            }
+
+            if (otp.length !== 6) {
+                showResponse('otpResponse', 'OTP must be 6 digits', 'error');
+                return;
+            }
+
+            try {
+                showResponse('otpResponse', 'Verifying OTP...', 'info');
+                
+                const { response, data } = await makeRequest('/verify-registration-otp', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, otp })
+                });
+
+                if (response.ok) {
+                    showResponse('otpResponse', '✅ OTP verified successfully! Account activated.', 'success');
+                    // Auto-fill login fields
+                    document.getElementById('loginEmail').value = email;
+                } else {
+                    showResponse('otpResponse', `❌ Error: ${data.detail || 'OTP verification failed'}`, 'error');
+                }
+            } catch (error) {
+                showResponse('otpResponse', `❌ ${error.message}`, 'error');
+            }
+        }
+
+        async function forgotPassword() {
+            const email = document.getElementById('forgotEmail').value;
+
+            if (!email) {
+                showResponse('forgotResponse', 'Please enter email address', 'error');
+                return;
+            }
+
+            try {
+                showResponse('forgotResponse', 'Sending reset link...', 'info');
+                
+                const { response, data } = await makeRequest('/forgot-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ email })
+                });
+
+                if (response.ok) {
+                    showResponse('forgotResponse', 
+                        '✅ Reset link sent! Check your email for the password reset link.', 
+                        'success'
+                    );
+                } else {
+                    showResponse('forgotResponse', `❌ Error: ${data.detail || 'Failed to send reset link'}`, 'error');
+                }
+            } catch (error) {
+                showResponse('forgotResponse', `❌ ${error.message}`, 'error');
+            }
+        }
+
+        async function resetPassword() {
+            const token = document.getElementById('resetToken').value;
+            const newPassword = document.getElementById('newPassword').value;
+
+            if (!token || !newPassword) {
+                showResponse('resetResponse', 'Please fill in all fields', 'error');
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                showResponse('resetResponse', 'Password must be at least 8 characters', 'error');
+                return;
+            }
+
+            try {
+                showResponse('resetResponse', 'Resetting password...', 'info');
+                
+                const { response, data } = await makeRequest('/reset-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ token, new_password: newPassword })
+                });
+
+                if (response.ok) {
+                    showResponse('resetResponse', '✅ Password reset successfully! You can now login with your new password.', 'success');
+                } else {
+                    showResponse('resetResponse', `❌ Error: ${data.detail || 'Password reset failed'}`, 'error');
+                }
+            } catch (error) {
+                showResponse('resetResponse', `❌ ${error.message}`, 'error');
+            }
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showResponse('loginResponse', 'Please fill in all fields', 'error');
+                return;
+            }
+
+            try {
+                showResponse('loginResponse', 'Logging in...', 'info');
+                
+                const formData = new FormData();
+                formData.append('username', email);
+                formData.append('password', password);
+                formData.append('grant_type', 'password');
+
+                const response = await fetch(`${API_BASE}/token`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.access_token;
+                    showResponse('loginResponse', '✅ Login successful! Token saved for protected route testing.', 'success');
+                } else {
+                    showResponse('loginResponse', `❌ Error: ${data.detail || 'Login failed'}`, 'error');
+                }
+            } catch (error) {
+                showResponse('loginResponse', `❌ ${error.message}`, 'error');
+            }
+        }
+
+        async function testProtected() {
+            if (!authToken) {
+                showResponse('protectedResponse', 'Please login first to get an access token', 'error');
+                return;
+            }
+
+            try {
+                showResponse('protectedResponse', 'Testing protected route...', 'info');
+                
+                const { response, data } = await makeRequest('/protected');
+
+                if (response.ok) {
+                    showResponse('protectedResponse', 
+                        `✅ Protected route access successful! User ID: ${data.user_id}`, 
+                        'success'
+                    );
+                } else {
+                    showResponse('protectedResponse', `❌ Error: ${data.detail || 'Access denied'}`, 'error');
+                    if (response.status === 401) {
+                        authToken = null; // Clear invalid token
+                    }
+                }
+            } catch (error) {
+                showResponse('protectedResponse', `❌ ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-fill fields for testing
+        function fillTestData() {
+            document.getElementById('regEmail').value = 'test@example.com';
+            document.getElementById('regPassword').value = 'testpassword123';
+            document.getElementById('otpEmail').value = 'test@example.com';
+            document.getElementById('forgotEmail').value = 'test@example.com';
+            document.getElementById('loginEmail').value = 'test@example.com';
+            document.getElementById('loginPassword').value = 'testpassword123';
+        }
+
+        function testDiscordLogin() {
+            showResponse('discordResponse', 'Redirecting to Discord...', 'info');
+            // Open Discord login in new tab
+            const discordUrl = `${API_BASE}/discord/login`;
+            window.open(discordUrl, '_blank');
+            showResponse('discordResponse', '🔗 Discord login opened in new tab. Check the new tab for authentication.', 'success');
+        }
+
+        function testGoogleLogin() {
+            showResponse('googleResponse', 'Redirecting to Google...', 'info');
+            // Open Google login in new tab
+            const googleUrl = `${API_BASE}/login/google`;
+            window.open(googleUrl, '_blank');
+            showResponse('googleResponse', '🔗 Google login opened in new tab. Check the new tab for authentication.', 'success');
+        }
+
+        // Enhanced makeRequest with better error handling
+        async function makeRequest(url, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+                    },
+                    ...options
+                });
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    // Handle non-JSON responses
+                    data = { message: await response.text() };
+                }
+                
+                return { response, data };
+            } catch (error) {
+                throw new Error(`Network error: ${error.message}`);
+            }
+        }
+
+        // Add logout functionality
+        async function logout() {
+            try {
+                const { response, data } = await makeRequest('/logout');
+                authToken = null;
+                
+                // Clear all form fields
+                document.querySelectorAll('input').forEach(input => input.value = '');
+                document.querySelectorAll('.response').forEach(resp => {
+                    resp.textContent = '';
+                    resp.className = 'response';
+                });
+                
+                if (response.ok) {
+                    alert('✅ Logged out successfully!');
+                } else {
+                    alert('⚠️ Logout completed (server may be unavailable)');
+                }
+            } catch (error) {
+                authToken = null;
+                alert('⚠️ Logout completed (network error)');
+            }
+        }
+
+        // Add logout button functionality
+        function addLogoutButton() {
+            const header = document.querySelector('.header p');
+            header.innerHTML += '<br><br><button onclick="logout()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-top: 10px;">🚪 Logout & Clear Data</button>';
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+                fillTestData();
+            }
+        });
+
+        // Add logout button on page load
+        window.addEventListener('load', function() {
+            addLogoutButton();
+        });
+    </script>
+</body>
+</html>

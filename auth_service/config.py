@@ -42,7 +42,7 @@ class Settings:
     # Discord
     DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
     DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET")
-    DISCORD_REDIRECT_URI = os.getenv("DISCORD_REDIRECT_URI", "http://localhost:8000/auth/discord/callback")
+    DISCORD_REDIRECT_URI = os.getenv("DISCORD_REDIRECT_URI", "http://127.0.0.1:8000/auth/discord/callback")
     DISCORD_AUTH_SCOPES = os.getenv("DISCORD_AUTH_SCOPES", "identify email")
     # Add to Settings class
     GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")

@@ -1,7 +1,7 @@
 import redis
 import json
 import logging
-from ..config import settings
+from config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +62,6 @@ try:
 except Exception as e:
     logger.critical(f"Failed to initialize Redis: {e}")
     raise
-
-
 # ADD THE NEW HELPER FUNCTIONS HERE:
 def save_discord_state(r, state: str, data: dict):
     """Save Discord state with better error handling"""
@@ -115,3 +113,5 @@ def delete_discord_state(r, state: str):
     except Exception as e:
         logger.error(f"❌ Failed to delete Discord state: {e}")
         return False
+
+

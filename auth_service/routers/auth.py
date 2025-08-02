@@ -11,13 +11,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
 from fastapi.responses import RedirectResponse
 
-from ..utils import discord
-from ..config import settings
-from ..dependencies import oauth2_scheme, get_redis, get_current_user
-from ..utils.security import hash_password, verify_password, create_jwt, decode_jwt
-from ..utils.email import send_otp_email, send_password_reset_email
-from ..utils.discord import generate_discord_login_url, exchange_code, get_discord_user, create_auth_token
-from ..utils.google import generate_google_login_url, exchange_google_code, get_google_user
+from utils import discord
+from config import settings
+from dependencies import oauth2_scheme, get_redis, get_current_user, validate_token_version, get_discord_user, get_google_user_from_redis
+from utils.security import hash_password, verify_password, create_jwt, decode_jwt
+from utils.email import send_otp_email, send_password_reset_email
+from utils.discord import generate_discord_login_url, exchange_code, get_discord_user, create_auth_token
+from utils.google import generate_google_login_url, exchange_google_code, get_google_user
 
 router = APIRouter(tags=["Authentication"])
 logger = logging.getLogger(__name__)
@@ -601,34 +601,68 @@ def google_callback(
 
 # Profile route for users
 @router.get("/profile")
-def get_profile(current_user=Depends(get_current_user)):
+def get_profile(token: str = Depends(oauth2_scheme), r=Depends(get_redis)):
     """Get user profile information"""
-    source = current_user.get("source", "regular")
+    # Decode and validate token
+    payload = decode_jwt(token)
+    if not payload:
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
+    # Validate token version
+    if not validate_token_version(payload, r):
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED,
+            detail="Token expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Get user source and data
+    source = payload.get("source", "regular")
+    user_id = payload.get("sub")
+    
+    # Get user data based on source
     if source == "google":
+        user = get_google_user_from_redis(r, user_id)
+        if not user:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User not found")
         return {
-            "user_id": current_user.get("id"),
-            "name": current_user.get("name"),
-            "email": current_user.get("email"),
-            "picture": current_user.get("picture"),
-            "verified": current_user.get("verified"),
+            "user_id": user.get("id"),
+            "name": user.get("name"),
+            "email": user.get("email"),
+            "picture": user.get("picture"),
+            "verified": user.get("verified"),
             "source": "google"
         }
     elif source == "discord":
+        user = get_discord_user(r, user_id)
+        if not user:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User not found")
         return {
-            "user_id": current_user.get("id"),
-            "username": current_user.get("username"),
-            "email": current_user.get("email"),
-            "avatar": current_user.get("avatar"),
-            "verified": current_user.get("verified"),
+            "user_id": user.get("id"),
+            "username": user.get("username"),
+            "email": user.get("email"),
+            "avatar": user.get("avatar"),
+            "verified": user.get("verified"),
             "source": "discord"
         }
     else:
         # Regular user
+        try:
+            user_id = int(user_id)
+        except (ValueError, TypeError):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid user")
+        user_data = r.hgetall(f"user:{user_id}")
+        user = {k.decode(): v.decode() for k, v in user_data.items()} if user_data else None
+        if not user:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User not found")
         return {
-            "user_id": current_user.get("id"),
-            "email": current_user.get("email"),
-            "is_active": current_user.get("is_active"),
+            "user_id": user.get("id"),
+            "email": user.get("email"),
+            "is_active": user.get("is_active"),
             "source": "regular"
         }
 

@@ -1,7 +1,7 @@
 import requests
 import logging
 from urllib.parse import urlencode
-from ..config import settings
+from config import settings
 
 logger = logging.getLogger(__name__)
 
