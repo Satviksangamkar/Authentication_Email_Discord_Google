@@ -38,18 +38,73 @@ A comprehensive FastAPI-based authentication service supporting **Email/Password
 
 ## 🏗️ Architecture Overview
 
+### System Architecture
+```mermaid
+flowchart TD
+    Client["Client Applications"] <-->|"HTTP/REST"| Auth["Auth Service (FastAPI)"]
+    Auth <-->|"Session & User Data"| Redis["Redis Database"]
+    Auth <-->|"Email Verification"| SMTP["Email Service"]
+    Auth <-->|"OAuth"| Discord["Discord API"]
+    Auth <-->|"OAuth"| Google["Google API"]
+    
+    style Client fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style Auth fill:#d4f1f9,stroke:#333,stroke-width:2px
+    style Redis fill:#ffe6cc,stroke:#333,stroke-width:2px
+    style SMTP fill:#d5e8d4,stroke:#333,stroke-width:2px
+    style Discord fill:#e1d5e7,stroke:#333,stroke-width:2px
+    style Google fill:#fff2cc,stroke:#333,stroke-width:2px
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Client        │    │   Auth Service  │    │     Redis       │
-│   (Any Client)  │◄──►│   (FastAPI)     │◄──►│   (Sessions)    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                │
-                        ┌───────┴───────┐
-                        │               │
-                   ┌────▼────┐    ┌─────▼─────┐
-                   │ Discord │    │  Google   │
-                   │  OAuth  │    │  OAuth    │
-                   └─────────┘    └───────────┘
+
+### Authentication Flows
+```mermaid
+flowchart LR
+    subgraph "Email Authentication"
+        E1["Register"] --> E2["Verify OTP"] --> E3["Login"] --> E4["Access Protected Routes"]
+        E5["Forgot Password"] --> E6["Reset Password"] --> E3
+    end
+    
+    subgraph "OAuth Authentication"
+        O1["Initiate OAuth"] --> O2["Provider Consent"] --> O3["Callback Processing"] --> O4["JWT Creation"] --> O5["Access Protected Routes"]
+    end
+    
+    style E1 fill:#d5e8d4,stroke:#333
+    style E2 fill:#d5e8d4,stroke:#333
+    style E3 fill:#d5e8d4,stroke:#333
+    style E4 fill:#d5e8d4,stroke:#333
+    style E5 fill:#d5e8d4,stroke:#333
+    style E6 fill:#d5e8d4,stroke:#333
+    style O1 fill:#e1d5e7,stroke:#333
+    style O2 fill:#e1d5e7,stroke:#333
+    style O3 fill:#e1d5e7,stroke:#333
+    style O4 fill:#e1d5e7,stroke:#333
+    style O5 fill:#e1d5e7,stroke:#333
+```
+
+### Data Storage Model
+```mermaid
+flowchart TD
+    subgraph "Redis Database"
+        Users["User Accounts"] 
+        Sessions["Active Sessions"]
+        OTP["Verification Codes"]
+        States["OAuth States"]
+        TokenVersions["Token Versions"]
+    end
+    
+    subgraph "Authentication Types"
+        Email["Email Users"] --> Users
+        Discord["Discord Users"] --> Users
+        Google["Google Users"] --> Users
+    end
+    
+    style Users fill:#ffe6cc,stroke:#333
+    style Sessions fill:#ffe6cc,stroke:#333
+    style OTP fill:#ffe6cc,stroke:#333
+    style States fill:#ffe6cc,stroke:#333
+    style TokenVersions fill:#ffe6cc,stroke:#333
+    style Email fill:#d5e8d4,stroke:#333
+    style Discord fill:#e1d5e7,stroke:#333
+    style Google fill:#fff2cc,stroke:#333
 ```
 
 ### Project Structure
@@ -605,4 +660,3 @@ Monitor these endpoints:
 - **API Documentation**: `GET /docs`
 - **Redis Connection**: Check logs for connection status
 - **Note**: No dedicated health check endpoint is currently implemented
-
